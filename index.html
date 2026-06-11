@@ -172,15 +172,16 @@ section{
 /* ============ TICKER ============ */
 .ticker{
     width:100%;overflow:hidden;
+    direction:ltr; /* must be LTR so translateX(-50%) scrolls correctly */
     border-top:1px solid rgba(255,255,255,.09);
     border-bottom:1px solid rgba(255,255,255,.09);
     padding:.9rem 0;
     background:rgba(255,255,255,.025);
     position:relative;z-index:10;
 }
-.ticker-track{display:flex;width:max-content;animation:tick 30s linear infinite}
+.ticker-track{display:flex;width:max-content;animation:tick 34s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
-.t-item{white-space:nowrap;padding:0 2.4rem;font-weight:300;font-size:1.02rem;color:var(--pink)}
+.t-item{white-space:nowrap;padding:0 2.6rem;font-weight:300;font-size:1.02rem;color:var(--pink);direction:rtl}
 @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ============ SECTION HEADERS ============ */

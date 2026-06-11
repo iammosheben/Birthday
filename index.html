@@ -818,35 +818,75 @@ document.addEventListener('click', e => {
 });
 
 /* ================= MUSIC (Happy Birthday, WebAudio) ================= */
-let audio = null, musicOn = false, musicTimer = null;
+let audio = null, musicOn = true, musicTimer = null, activeNodes = [];
+
 const MELODY = [
     [392,.4],[392,.3],[440,.7],[392,.7],[523,.7],[494,1.2],
     [392,.4],[392,.3],[440,.7],[392,.7],[587,.7],[523,1.2],
     [392,.4],[392,.3],[784,.7],[659,.7],[523,.7],[494,.7],[440,1.1],
     [698,.4],[698,.3],[659,.7],[523,.7],[587,.7],[523,1.4],
 ];
-function playMelody(){
-    if(!musicOn) return;
-    if(!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-    let t = audio.currentTime + .1;
+
+function stopAllNodes(){
+    clearTimeout(musicTimer);
+    /* stop every scheduled oscillator immediately */
+    activeNodes.forEach(o => { try { o.stop(0); } catch(_){} });
+    activeNodes = [];
+}
+
+function scheduleMelody(){
+    if(!musicOn || !audio || audio.state !== 'running') return;
+    stopAllNodes();
+    let t = audio.currentTime + .05;
     MELODY.forEach(([f, d]) => {
         const o = audio.createOscillator(), g = audio.createGain();
         o.type = 'triangle'; o.frequency.value = f;
         g.gain.setValueAtTime(0, t);
         g.gain.linearRampToValueAtTime(.16, t + .03);
-        g.gain.exponentialRampToValueAtTime(.001, t + d*.92);
+        g.gain.exponentialRampToValueAtTime(.001, t + d * .92);
         o.connect(g); g.connect(audio.destination);
         o.start(t); o.stop(t + d);
+        activeNodes.push(o);
         t += d;
     });
-    musicTimer = setTimeout(playMelody, (t - audio.currentTime + .6) * 1000);
+    musicTimer = setTimeout(scheduleMelody, (t - audio.currentTime + .5) * 1000);
 }
+
+function startMusic(){
+    if(!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    audio.resume().then(scheduleMelody);
+}
+
+/* default ON — button reflects this before first gesture */
+$('musicBtn').classList.add('on');
+$('musicBtn').textContent = '🔊';
+
+/* browsers block audio until a user gesture — start on first interaction */
+let gestureHandled = false;
+function onFirstGesture(e){
+    if(gestureHandled) return;
+    /* let the music button's own handler deal with it if that's the click */
+    if(e && e.target && e.target.closest('#musicBtn')) return;
+    gestureHandled = true;
+    document.removeEventListener('click', onFirstGesture);
+    document.removeEventListener('keydown', onFirstGesture);
+    if(musicOn) startMusic();
+}
+document.addEventListener('click', onFirstGesture);
+document.addEventListener('keydown', onFirstGesture);
+
 $('musicBtn').addEventListener('click', function(){
+    /* mark first gesture handled so the document listener doesn't double-fire */
+    if(!gestureHandled){
+        gestureHandled = true;
+        document.removeEventListener('click', onFirstGesture);
+        document.removeEventListener('keydown', onFirstGesture);
+    }
     musicOn = !musicOn;
     this.classList.toggle('on', musicOn);
     this.textContent = musicOn ? '🔊' : '🎵';
-    if(musicOn) playMelody();
-    else clearTimeout(musicTimer);
+    if(musicOn) startMusic();
+    else stopAllNodes();
 });
 </script>
 </body>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יום הולדת שמח נועה! 🎉</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --pink:   #ff6eb4;
+            --pink2:  #ff2d94;
+            --purple: #9b59ff;
+            --purple2:#6c00ff;
+            --gold:   #ffd700;
+            --cyan:   #00e5ff;
+            --bg:     #08000f;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            direction: rtl;
+            cursor: none;
+        }
+
+        /* ---------- INTRO ---------- */
+        #intro {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.9s ease;
+        }
+        #intro.hidden { opacity: 0; pointer-events: none; }
+
+        .cnt-wrap {
+            text-align: center;
+            animation: pop 0.7s cubic-bezier(.3,1.4,.4,1) both;
+        }
+        .cnt-num {
+            font-size: clamp(9rem, 28vw, 22rem);
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--pink), var(--purple), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 40px rgba(255,45,148,.6));
+        }
+        .cnt-sub {
+            font-size: clamp(1.4rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: #fff;
+            margin-top: .5rem;
+            opacity: .85;
+        }
+        @keyframes pop {
+            from { opacity:0; transform: scale(.4); }
+            to   { opacity:1; transform: scale(1); }
+        }
+
+        /* ---------- CURSOR ---------- */
+        .cur-ring {
+            width: 24px; height: 24px;
+            border: 2px solid var(--pink);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%,-50%);
+            transition: width .25s, height .25s, border-color .25s;
+            mix-blend-mode: screen;
+        }
+        .cur-dot {
+            width: 5px; height: 5px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%,-50%);
+        }
+        @media (hover:none) {
+            body { cursor: default; }
+            .cur-ring, .cur-dot { display: none; }
+        }
+
+        /* ---------- CANVAS ---------- */
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* ---------- PAGE ---------- */
+        .page {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5rem 1.5rem 6rem;
+            gap: 3rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .page.show { opacity: 1; }
+
+        /* ---------- HERO ---------- */
+        .hero { text-align: center; }
+
+        .label {
+            font-size: clamp(.85rem, 2vw, 1.1rem);
+            font-weight: 300;
+            letter-spacing: 6px;
+            color: var(--pink);
+            text-transform: uppercase;
+            margin-bottom: .8rem;
+        }
+
+        .big-name {
+            font-size: clamp(5.5rem, 22vw, 17rem);
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #ff2d94 0%, #b44fff 35%, #ffd700 65%, #ff6eb4 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradShift 6s ease infinite;
+            filter: drop-shadow(0 0 50px rgba(255,45,148,.45));
+        }
+        @keyframes gradShift {
+            0%,100% { background-position: 0% 50%; }
+            50%      { background-position: 100% 50%; }
+        }
+
+        .birthday-line {
+            font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+            font-weight: 700;
+            color: #fff;
+            margin-top: .5rem;
+        }
+        .age-glow {
+            display: inline-block;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold), 0 0 60px rgba(255,215,0,.6);
+            animation: glowPulse 2.5s ease infinite;
+        }
+        @keyframes glowPulse {
+            0%,100% { text-shadow: 0 0 20px var(--gold), 0 0 60px rgba(255,215,0,.6); }
+            50%      { text-shadow: 0 0 45px var(--gold), 0 0 110px rgba(255,215,0,.9); }
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: min(320px, 80%);
+            margin: 1.2rem auto 0;
+        }
+        .div-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--pink), transparent);
+        }
+        .div-star { color: var(--gold); font-size: 1.1rem; }
+
+        /* ---------- TICKER ---------- */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            border-top: 1px solid rgba(255,110,180,.18);
+            border-bottom: 1px solid rgba(255,110,180,.18);
+            padding: .75rem 0;
+        }
+        .ticker-track {
+            display: flex;
+            width: max-content;
+            animation: scrollTicker 28s linear infinite;
+        }
+        .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
+        .t-item {
+            white-space: nowrap;
+            padding: 0 2.5rem;
+            font-size: 1.05rem;
+            color: var(--pink);
+        }
+        @keyframes scrollTicker {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        /* ---------- SECTION TITLE ---------- */
+        .section-title {
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+        }
+        .hl {
+            background: linear-gradient(90deg, var(--pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ---------- FLIP CARDS ---------- */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.4rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .flip-card {
+            height: 230px;
+            perspective: 1200px;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px) scale(.95);
+            transition: opacity .55s ease, transform .55s ease;
+        }
+        .flip-card.in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .fc-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            transition: transform .7s cubic-bezier(.4,0,.2,1);
+        }
+        .flip-card:hover .fc-inner,
+        .flip-card.flipped .fc-inner { transform: rotateY(180deg); }
+
+        .fc-front, .fc-back {
+            position: absolute;
+            inset: 0;
+            border-radius: 22px;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.6rem;
+            text-align: center;
+        }
+        .fc-front {
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,110,180,.25);
+            backdrop-filter: blur(14px);
+            gap: .8rem;
+            transition: box-shadow .3s, border-color .3s;
+        }
+        .flip-card:hover .fc-front {
+            box-shadow: 0 0 40px rgba(255,110,180,.25);
+            border-color: rgba(255,110,180,.55);
+        }
+        .fc-back {
+            background: linear-gradient(135deg,
+                rgba(180,79,255,.22),
+                rgba(255,45,148,.22)
+            );
+            border: 1px solid rgba(180,79,255,.4);
+            backdrop-filter: blur(14px);
+            transform: rotateY(180deg);
+        }
+        .fc-emoji { font-size: 3.2rem; }
+        .fc-label {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .fc-hint {
+            font-size: .78rem;
+            color: rgba(255,255,255,.38);
+            font-weight: 300;
+        }
+        .fc-msg {
+            font-size: 1rem;
+            font-weight: 300;
+            color: #fff;
+            line-height: 1.75;
+        }
+
+        /* ---------- WISH ---------- */
+        .wish-wrap {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.4rem;
+        }
+        .wish-title {
+            font-size: 1.4rem;
+            font-weight: 300;
+            color: rgba(255,255,255,.65);
+        }
+
+        .wish-btn {
+            position: relative;
+            padding: 1.1rem 3.2rem;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, var(--pink2), var(--purple2));
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(255,45,148,.42),
+                        0 0 70px rgba(108,0,255,.22);
+            transition: transform .2s, box-shadow .3s;
+        }
+        .wish-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,.15);
+            transform: translateX(-110%);
+            transition: transform .45s;
+        }
+        .wish-btn:hover::after  { transform: translateX(110%); }
+        .wish-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 55px rgba(255,45,148,.6),
+                        0 0 110px rgba(108,0,255,.35);
+        }
+        .wish-btn:active { transform: scale(.97); }
+
+        .wish-out {
+            min-height: 3rem;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(255,215,0,.55);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .4s, transform .4s;
+        }
+        .wish-out.show { opacity: 1; transform: translateY(0); }
+
+        /* ---------- FOOTER ---------- */
+        .footer {
+            font-size: .88rem;
+            color: rgba(255,255,255,.28);
+            font-weight: 300;
+            text-align: center;
+        }
+
+        /* ---------- FLOATY STUFF ---------- */
+        .sparkle-el {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9990;
+            animation: sparkOut .9s ease-out forwards;
+            user-select: none;
+            line-height: 1;
+        }
+        @keyframes sparkOut {
+            0%   { opacity:1; transform: scale(0) rotate(0deg); }
+            60%  { opacity:1; transform: scale(1.3) rotate(180deg); }
+            100% { opacity:0; transform: scale(.8) rotate(360deg) translateY(-22px); }
+        }
+
+        .float-e {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9;
+            animation: floatUp linear forwards;
+        }
+        @keyframes floatUp {
+            from { transform: translateY(0) rotate(0deg); opacity: 1; }
+            to   { transform: translateY(-115vh) rotate(400deg); opacity: 0; }
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 600px) {
+            .cards-grid { grid-template-columns: 1fr 1fr; }
+            .flip-card  { height: 190px; }
+            .fc-msg     { font-size: .88rem; }
+        }
+        @media (max-width: 380px) {
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cur-ring" id="cRing"></div>
+<div class="cur-dot"  id="cDot"></div>
+
+<!-- Intro countdown -->
+<div id="intro">
+    <div class="cnt-wrap" id="cntWrap">
+        <div class="cnt-num" id="cntNum">?</div>
+        <div class="cnt-sub" id="cntSub">מוכנה?</div>
+    </div>
+</div>
+
+<!-- Starfield + fireworks canvas -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- Main page (hidden until intro ends) -->
+<div class="page" id="mainPage">
+
+    <div class="hero">
+        <div class="label">✦ יום הולדת שמח ✦</div>
+        <div class="big-name">נועה</div>
+        <div class="birthday-line">בת <span class="age-glow">14</span> 🎂</div>
+        <div class="divider">
+            <div class="div-line"></div>
+            <span class="div-star">✦</span>
+            <div class="div-line"></div>
+        </div>
+    </div>
+
+    <div class="ticker-wrap">
+        <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <div class="section-title">🎁 <span class="hl">כמה מילים</span> מהלב אלייך</div>
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div class="wish-wrap">
+        <p class="wish-title">הפכי משאלה ✨</p>
+        <button class="wish-btn" id="wishBtn">🕯️ תפשי את הרגע!</button>
+        <div class="wish-out" id="wishOut"></div>
+    </div>
+
+    <div class="footer">עם אהבה ❤️ &nbsp;|&nbsp; נועה – את מיוחדת במיוחד</div>
+</div>
+
+<script>
+/* =============================================
+   INTRO COUNTDOWN
+   ============================================= */
+const intro    = document.getElementById('intro');
+const cntWrap  = document.getElementById('cntWrap');
+const mainPage = document.getElementById('mainPage');
+let introEndTime = 0;
+
+const STEPS = [
+    { num: '3',  sub: '' },
+    { num: '2',  sub: '' },
+    { num: '1',  sub: '' },
+    { num: '🎉', sub: 'יום הולדת שמח נועה!' },
+];
+
+function runStep(i) {
+    if (i >= STEPS.length) {
+        intro.classList.add('hidden');
+        setTimeout(() => { intro.style.display = 'none'; }, 950);
+        mainPage.classList.add('show');
+        introEndTime = Date.now();
+        onPageShow();
+        return;
+    }
+    const s = STEPS[i];
+    cntWrap.style.animation = 'none';
+    cntWrap.offsetWidth; // reflow
+    cntWrap.style.animation = '';
+    cntWrap.innerHTML = `
+        <div class="cnt-num">${s.num}</div>
+        ${s.sub ? `<div class="cnt-sub">${s.sub}</div>` : ''}
+    `;
+    setTimeout(() => runStep(i + 1), i === STEPS.length - 1 ? 1300 : 850);
+}
+setTimeout(() => runStep(0), 500);
+
+/* Initial fireworks when emoji shows */
+setTimeout(() => {
+    for (let i = 0; i < 6; i++) {
+        setTimeout(() => fireAt(
+            rnd(0, W()), rnd(0, H() * .7)
+        ), i * 220);
+    }
+}, 3350);
+
+/* =============================================
+   CANVAS – STARS + FIREWORKS
+   ============================================= */
+const canvas = document.getElementById('bgCanvas');
+const ctx    = canvas.getContext('2d');
+
+const W = () => canvas.width;
+const H = () => canvas.height;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const rndInt = (a, b) => Math.floor(rnd(a, b));
+
+function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    makeStars();
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* Stars */
+let stars = [];
+function makeStars() {
+    stars = [];
+    const n = Math.min(280, ~~(W() * H() / 3800));
+    for (let i = 0; i < n; i++) {
+        stars.push({
+            x:  rnd(0, W()),
+            y:  rnd(0, H()),
+            r:  rnd(.3, 2),
+            a:  Math.random(),
+            da: rnd(.004, .012) * (Math.random() > .5 ? 1 : -1),
+        });
+    }
+}
+
+/* Fireworks */
+let fwParts = [];
+const FW_COLORS = [
+    '#ff6eb4','#ff2d94','#b44fff','#6c00ff',
+    '#ffd700','#00e5ff','#ff6347','#7fff00','#fff',
+];
+
+function fireAt(x, y) {
+    const c = FW_COLORS[rndInt(0, FW_COLORS.length)];
+    for (let i = 0; i < 70; i++) {
+        const ang = (Math.PI * 2 * i) / 70 + rnd(-.15, .15);
+        const spd = rnd(1.5, 8);
+        fwParts.push({
+            x, y,
+            vx:  Math.cos(ang) * spd,
+            vy:  Math.sin(ang) * spd - rnd(0, 2),
+            col: c,
+            a:   1,
+            r:   rnd(.5, 3),
+            dr:  .97,
+            dec: rnd(.008, .022),
+            g:   .09,
+        });
+    }
+}
+
+let lastAuto = 0;
+
+function drawFrame(ts) {
+    /* Slight trail for blur */
+    ctx.fillStyle = 'rgba(8,0,15,.22)';
+    ctx.fillRect(0, 0, W(), H());
+
+    /* Nebula blobs */
+    const blobs = [
+        { x: W()*.22, y: H()*.38, r: 380, col: 'rgba(255,45,148,.055)' },
+        { x: W()*.78, y: H()*.62, r: 300, col: 'rgba(108,0,255,.065)' },
+        { x: W()*.5,  y: H()*.15, r: 220, col: 'rgba(255,215,0,.035)'  },
+    ];
+    blobs.forEach(b => {
+        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+        g.addColorStop(0, b.col);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W(), H());
+    });
+
+    /* Stars */
+    stars.forEach(s => {
+        s.a += s.da;
+        if (s.a > 1 || s.a < 0) s.da *= -1;
+        ctx.globalAlpha = Math.max(0, Math.min(1, s.a));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    /* Firework particles */
+    for (let i = fwParts.length - 1; i >= 0; i--) {
+        const p = fwParts[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= p.dr; p.vy *= p.dr;
+        p.vy += p.g;
+        p.a  -= p.dec;
+        if (p.a <= 0) { fwParts.splice(i, 1); continue; }
+        ctx.globalAlpha = p.a;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.col;
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    /* Auto firework every ~4.5s */
+    if (ts - lastAuto > 4500) {
+        lastAuto = ts;
+        fireAt(rnd(80, W() - 80), rnd(40, H() * .58));
+    }
+
+    requestAnimationFrame(drawFrame);
+}
+requestAnimationFrame(drawFrame);
+
+/* Click = firework */
+document.addEventListener('click', e => {
+    if (!e.target.closest('#wishBtn')) {
+        fireAt(e.clientX, e.clientY);
+    }
+});
+
+/* =============================================
+   CURSOR
+   ============================================= */
+const cRing = document.getElementById('cRing');
+const cDot  = document.getElementById('cDot');
+let mx = 0, my = 0, cx = 0, cy = 0;
+
+document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cDot.style.left = mx + 'px';
+    cDot.style.top  = my + 'px';
+    spawnSparkle(mx, my);
+});
+
+(function trackRing() {
+    cx += (mx - cx) * .13;
+    cy += (my - cy) * .13;
+    cRing.style.left = cx + 'px';
+    cRing.style.top  = cy + 'px';
+    requestAnimationFrame(trackRing);
+})();
+
+document.querySelectorAll('button, .flip-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+        cRing.style.width  = '48px';
+        cRing.style.height = '48px';
+        cRing.style.borderColor = 'var(--gold)';
+    });
+    el.addEventListener('mouseleave', () => {
+        cRing.style.width  = '24px';
+        cRing.style.height = '24px';
+        cRing.style.borderColor = 'var(--pink)';
+    });
+});
+
+/* =============================================
+   SPARKLE TRAIL
+   ============================================= */
+const SP_CHARS  = ['✦','✧','⋆','★','◆','✺','✿','❋'];
+const SP_COLORS = ['#ff6eb4','#ffd700','#b44fff','#00e5ff','#ff2d94'];
+let lastSp = 0;
+
+function spawnSparkle(x, y) {
+    const now = Date.now();
+    if (now - lastSp < 55) return;
+    lastSp = now;
+    const el = document.createElement('span');
+    el.className = 'sparkle-el';
+    el.textContent = SP_CHARS[rndInt(0, SP_CHARS.length)];
+    el.style.cssText = `
+        left:${x + rnd(-14,14)}px;
+        top:${y + rnd(-14,14)}px;
+        color:${SP_COLORS[rndInt(0,SP_COLORS.length)]};
+        font-size:${rnd(9,20)}px;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 950);
+}
+
+/* =============================================
+   TICKER
+   ============================================= */
+const TICKER_ITEMS = [
+    '✦ את מדהימה',
+    '💫 העולם מחכה לך',
+    '✨ 14 שנים של ניצוץ',
+    '🎵 לחלום בגדול',
+    '💖 תהי עצמך – זה מספיק',
+    '🌟 אין גבול לך',
+    '🦋 יפה, חכמה, חזקה',
+    '🚀 כל מה שתרצי – אפשרי',
+    '🌈 כל יום הוא הרפתקה חדשה',
+    '💜 אנחנו גאים בך',
+    '🎀 הכי טובה שיש',
+    '⭐ הכוכב הכי בוהק',
+];
+
+const track = document.getElementById('tickerTrack');
+[...TICKER_ITEMS, ...TICKER_ITEMS].forEach(t => {
+    const s = document.createElement('span');
+    s.className = 't-item';
+    s.innerHTML = t;
+    track.appendChild(s);
+});
+
+/* =============================================
+   FLIP CARDS
+   ============================================= */
+const CARDS = [
+    {
+        emoji: '💫', label: 'בת 14 – זה מיוחד',
+        msg: 'את 14 שנים של שמחה, סקרנות ואהבה. כל יום שעבר עיצב אותך לאישה המדהימה שאת הופכת להיות.',
+    },
+    {
+        emoji: '🌟', label: 'החלומות שלך',
+        msg: 'כל חלום שמדליק אותך – מוזיקה, אמנות, כתיבה, ספורט – תרדפי אחריו בלי פחד. אף חלום לא קטן מדי.',
+    },
+    {
+        emoji: '💪', label: 'את חזקה',
+        msg: 'הימים הקשים יעברו, אבל הכוח שתבני מהם יישאר. את חזקה הרבה יותר ממה שאת חושבת.',
+    },
+    {
+        emoji: '🦋', label: 'תהי עצמך',
+        msg: 'הייחודיות שלך היא מתנה. אל תסתתרי, אל תתנצלי. אף אחד אחר לא יכול להיות נועה כמוך.',
+    },
+    {
+        emoji: '💖', label: 'חברות אמיתיות',
+        msg: 'שמרי על האנשים שגורמים לך לצחוק, שמקבלים אותך כמו שאת, ושנמצאים שם גם ברגעים הקשים.',
+    },
+    {
+        emoji: '🌈', label: 'השנה הזו שלך',
+        msg: 'שנה שלמה של רגעים יפים, גילויים, הפתעות ואהבה מחכה לך. תחייכי הרבה, תאהבי בגדול, תחלמי גדול עוד יותר.',
+    },
+];
+
+const grid = document.getElementById('cardsGrid');
+const cardEls = [];
+
+CARDS.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'flip-card';
+    div.innerHTML = `
+        <div class="fc-inner">
+            <div class="fc-front">
+                <span class="fc-emoji">${c.emoji}</span>
+                <div class="fc-label">${c.label}</div>
+                <div class="fc-hint">לחצי לגלות ✨</div>
+            </div>
+            <div class="fc-back">
+                <p class="fc-msg">${c.msg}</p>
+            </div>
+        </div>
+    `;
+    grid.appendChild(div);
+    cardEls.push(div);
+
+    div.addEventListener('click', () => {
+        div.classList.toggle('flipped');
+        const r = div.getBoundingClientRect();
+        fireAt(r.left + r.width / 2, r.top + r.height / 2);
+        spawnFloats(6);
+    });
+});
+
+/* =============================================
+   FLOAT EMOJIS
+   ============================================= */
+const FLOATS = ['🎉','🎊','✨','💖','🌟','🦋','🌸','💫','⭐','🎈','💜','🌈','💎','🌺'];
+
+function spawnFloats(n = 8) {
+    for (let i = 0; i < n; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'float-e';
+            const sz = rnd(20, 38);
+            el.textContent = FLOATS[rndInt(0, FLOATS.length)];
+            el.style.cssText = `
+                left:${rnd(0, window.innerWidth)}px;
+                bottom:-60px;
+                font-size:${sz}px;
+                animation-duration:${rnd(4,7)}s;
+            `;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 7200);
+        }, i * 160);
+    }
+}
+
+/* =============================================
+   WISH BUTTON
+   ============================================= */
+const WISHES = [
+    '🌟 משאלתך נשמעה בשמיים! השנה הזו תהיה הכי טובה שהיתה!',
+    '💖 הניצוץ שלך מאיר את העולם – המשיכי לזרוח!',
+    '✨ הכוכבים מסדרים את עצמם במיוחד בשבילך!',
+    '🦋 כנפיים גדולות, אין גבול – פרחי לאן שליבך חפץ!',
+    '🎊 היקום שמע! משהו נפלא בדרך אלייך!',
+    '🌈 הקשת שלך תמיד תהיה מלאה בצבעים!',
+    '💜 14 נרות, 14 חלומות – כולם יתגשמו!',
+    '🚀 השמיים הם ההתחלה – תמשיכי גבוה יותר!',
+];
+let wishIdx = 0;
+
+document.getElementById('wishBtn').addEventListener('click', () => {
+    const out = document.getElementById('wishOut');
+    out.classList.remove('show');
+    setTimeout(() => {
+        out.textContent = WISHES[wishIdx % WISHES.length];
+        out.classList.add('show');
+        wishIdx++;
+    }, 320);
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => fireAt(rnd(0, W()), rnd(0, H() * .75)), i * 130);
+    }
+    spawnFloats(12);
+});
+
+/* =============================================
+   ON PAGE SHOW — kick off card animations
+   ============================================= */
+function onPageShow() {
+    /* Stagger cards in */
+    cardEls.forEach((c, i) => {
+        setTimeout(() => c.classList.add('in'), 350 + i * 170);
+    });
+    /* Emoji bursts */
+    setTimeout(() => spawnFloats(8),  800);
+    setTimeout(() => spawnFloats(5), 5000);
+    /* Recurring auto-fireworks bonus */
+    setTimeout(function recur() {
+        fireAt(rnd(60, W()-60), rnd(30, H()*.55));
+        setTimeout(recur, rnd(6000, 10000));
+    }, 4000);
+}
+
+/* Keyboard: any key = firework surprise 🎆 */
+document.addEventListener('keydown', e => {
+    if (e.key === ' ') e.preventDefault();
+    fireAt(rnd(0, W()), rnd(0, H() * .7));
+    spawnFloats(4);
+});
+</script>
+</body>
+</html>
